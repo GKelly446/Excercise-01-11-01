@@ -17,14 +17,14 @@ var httpRequest = false;
 // handle XHR instantiation
 function getRequestObject() {
     try {
-        httpRequest = new XMLHttpRequest(); //what does new mean in this sense and is an SMLHTTPrequest just a long way of saying a server request?
+        httpRequest = new XMLHttpRequest(); 
     }
     catch (requestError) {
         document.querySelector("p.error").innerHTML = "Forecast not supported by your browser.";
         document.querySelector("p.error").style.display = "block";
         return false;
     }
-    return httpRequest; //what's Return?
+    return httpRequest; 
 }
 
 // getWeather called on load event (default city: Tuscon) or button click to select city (changed or selected city);
@@ -55,7 +55,76 @@ function getWeather(evt) {
     httpRequest.abort();
     httpRequest.open("get", "solar.php?" + "lat=" + latitude + "&lng=" + longitude, true);
     httpRequest.send(null);
+    
+    httpRequest.onreadystatechange = fillWeather;
 }
+
+    // function fillWeather- this function returns JSON data pairs so that we can use them in the JavaScript. Specifically for this project, we're interested in the array in 'daily', which has forecast data. 
+    function fillWeather() {
+        if (httpRequest.readyState === 4 && httpRequest.status === 200) {
+            // creates supporting variables, calls in table elements in the HTML and fills affiliated caption elements with SelectedCity
+            weatherReport = JSON.parse(httpRequest.responseText); //parse? 
+            var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            var dateValue = new Date(weatherReport.daily.data[0].time);
+            var dayOfWeek = dateValue.getDay();
+            var rows = document.querySelectorAll("section.week table tbody tr");
+            document.querySelector("section.week table caption").innerHTML = selectedCity;
+            
+            // calls days of week into table cell
+            for (var i=0; i<rows.length; i++) {
+                var firstCell = rows[i].getElementsByTagName("td")[0];
+                var secondCell = rows[i].getElementsByTagName("td")[1];
+                var thirdCell = rows[i].getElementsByTagName("td")[2];
+                firstCell.innerHTML = days[dayOfWeek];
+             
+            // creates iteration so that all days of the week are called in the table
+                if (dayOfWeek + 1 === 7) {
+                    dayOfWeek = 0;
+                }
+                else {
+                    dayOfWeek++;
+                }
+                
+             //find out the sun cover percentage 
+                var sun = Math.round((1 - weatherReport.daily.data[i].cloudCover) *100, 0)
+            // change sybol color based on sun percentage
+                if (sun > 90) {
+                secondCell.style.color = "rgb(255, 171, 0)";
+                }
+                else if (sun > 80 && sun <= 90) {
+                secondCell.style.color = "rgb(255, 179,25)";
+                }
+                else if (sun > 70 && sun <= 90) {
+                secondCell.style.color = "rgb(255, 188,51)";
+                }
+                else if (sun > 60 && sun <= 90) {
+                secondCell.style.color = "rgb(255, 196,77)";
+                }
+                else if (sun > 50 && sun <= 90) {
+                secondCell.style.color = "rgb(255, 205,102)";
+                }
+                else if (sun > 40 && sun <= 90) {
+                secondCell.style.color = "rgb(255, 213,128)";
+                }
+                else if (sun > 30 && sun <= 90) {
+                secondCell.style.color = "rgb(255, 221,153)";
+                }
+                else if (sun > 20 && sun <= 90) {
+                secondCell.style.color = "rgb(255, 230,179)";
+                }
+                else if (sun <= 10) {
+                secondCell.style.color = "rgb(255, 238,204)";
+                }
+            }
+            
+            // shows the caption of the selectedCity
+            document.querySelector("section.week table caption").style.display = "block";
+            // shows the table of the selectoed City
+            document.querySelector("section.week table").style.display = "inline-block";
+            // affects the credit p tag in the HTML
+            document.querySelector("section.week p.credit").style.display = "block";
+        }
+    }
 
     //retrieve location cities from the page 
 var locations = document.querySelectorAll("section ul li");
@@ -75,40 +144,4 @@ if (window.addEventListener) {
 }
 
 
-//------------------------------------
-// populate rows with data
-
-/*    //find out the sun cover percentage 
-    var sun = Math.round((1 - weatherReport.daily.data[i].cloudCover) *100, 0)
-    alert(sun);
-    // change sybol color based on sun percentage
-    if (sun > 90) {
-        secondCell.style.color = "rgb(255, 171, 0)";
-    }
-    else if (sun > 80 && sun <= 90) {
-        secondCell.style.color = "rgb(255, 179,25)";
-    }
-    else if (sun > 70 && sun <= 90) {
-        secondCell.style.color = "rgb(255, 188,51)";
-    }
-    else if (sun > 60 && sun <= 90) {
-        secondCell.style.color = "rgb(255, 196,77)";
-    }
-    else if (sun > 50 && sun <= 90) {
-        secondCell.style.color = "rgb(255, 205,102)";
-    }
-    else if (sun > 40 && sun <= 90) {
-        secondCell.style.color = "rgb(255, 213,128)";
-    }
-    else if (sun > 30 && sun <= 90) {
-        secondCell.style.color = "rgb(255, 221,153)";
-    }
-    else if (sun > 20 && sun <= 90) {
-        secondCell.style.color = "rgb(255, 230,179)";
-    }
-    else if (sun <= 10) {
-        secondCell.style.color = "rgb(255, 238,204)";
-    }
-
-
-*/
+    

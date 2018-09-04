@@ -11,10 +11,23 @@
 
 // global variables
 var selectedCity = "Tucson, AZ";
-    // 
 var weatherReport;
+var httpRequest = false;
 
-    // getWeather called on load event (default city: Tuscon) or button click to select city (changed or selected city);
+// handle XHR instantiation
+function getRequestObject() {
+    try {
+        httpRequest = new XMLHttpRequest(); //what does new mean in this sense and is an SMLHTTPrequest just a long way of saying a server request?
+    }
+    catch (requestError) {
+        document.querySelector("p.error").innerHTML = "Forecast not supported by your browser.";
+        document.querySelector("p.error").style.display = "block";
+        return false;
+    }
+    return httpRequest; //what's Return?
+}
+
+// getWeather called on load event (default city: Tuscon) or button click to select city (changed or selected city);
 function getWeather(evt) {
    var latitude;
    var longitude;
@@ -35,6 +48,13 @@ function getWeather(evt) {
       latitude = 45.5601062;
       longitude = -73.7120832;
    }
+    if (!httpRequest) { 
+        httpRequest = getRequestObject();
+    }
+    // prevents overloading a server
+    httpRequest.abort();
+    httpRequest.open("get", "solar.php?" + "lat=" + latitude + "&lng=" + longitude, true);
+    httpRequest.send(null);
 }
 
     //retrieve location cities from the page 
@@ -53,3 +73,42 @@ if (window.addEventListener) {
 } else if (window.attachEvent) {
    window.attachEvent("onload", getWeather);
 }
+
+
+//------------------------------------
+// populate rows with data
+
+/*    //find out the sun cover percentage 
+    var sun = Math.round((1 - weatherReport.daily.data[i].cloudCover) *100, 0)
+    alert(sun);
+    // change sybol color based on sun percentage
+    if (sun > 90) {
+        secondCell.style.color = "rgb(255, 171, 0)";
+    }
+    else if (sun > 80 && sun <= 90) {
+        secondCell.style.color = "rgb(255, 179,25)";
+    }
+    else if (sun > 70 && sun <= 90) {
+        secondCell.style.color = "rgb(255, 188,51)";
+    }
+    else if (sun > 60 && sun <= 90) {
+        secondCell.style.color = "rgb(255, 196,77)";
+    }
+    else if (sun > 50 && sun <= 90) {
+        secondCell.style.color = "rgb(255, 205,102)";
+    }
+    else if (sun > 40 && sun <= 90) {
+        secondCell.style.color = "rgb(255, 213,128)";
+    }
+    else if (sun > 30 && sun <= 90) {
+        secondCell.style.color = "rgb(255, 221,153)";
+    }
+    else if (sun > 20 && sun <= 90) {
+        secondCell.style.color = "rgb(255, 230,179)";
+    }
+    else if (sun <= 10) {
+        secondCell.style.color = "rgb(255, 238,204)";
+    }
+
+
+*/
